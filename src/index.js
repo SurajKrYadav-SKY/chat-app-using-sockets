@@ -15,11 +15,25 @@ app.use("/", express.static(path.join(__dirname, "../public")));
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
+
+  socket.on("join_room", (data) => {
+    socket.join(data.roomid);
+  });
+
   socket.on("msg_sent", (data) => {
     console.log(data);
-    // io.emit("msg_recieved", data);
+    io.to(data.roomid).emit("msg_recieved", data);
     // socket.emit("msg_recieved", data);
-    socket.broadcast.emit("msg_recieved", data);
+    // socket.broadcast.emit("msg_recieved", data);
+  });
+});
+
+app.set("view engine", "ejs");
+
+app.get("/chat/:roomid", (req, res) => {
+  res.render("index", {
+    name: "Suraj",
+    id: req.params.roomid,
   });
 });
 
